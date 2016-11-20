@@ -55,6 +55,7 @@
         <th>Date</th>
         <th>Description</th>
         <th>Price</th>
+        <th> Formula </th>
         </thead>
         <!-- column data -->
         <tbody>
@@ -65,6 +66,7 @@
                 <td>${row.getStringVisitDate()}</td>
                 <td>${row.getDescription()}</td>
                 <td>${row.getPrice()}</td>
+                <td>${row.getTooth_formula()}</td>
                 <td>
                 	<a class="btn btn-default" href="${pageContext.request.contextPath}/editResource?id=${row.getResourceId()}" role="button">Edit</a>
             	</td>

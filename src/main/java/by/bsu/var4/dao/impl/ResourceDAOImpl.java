@@ -272,7 +272,12 @@ public class ResourceDAOImpl implements ResourceDAO {
             ps.setInt(4, resource.getPatientId());
             ps.setInt(5, resource.getDoctorId());
             ps.setInt(6, resource.getResourceId());
-            ps.executeUpdate();            
+
+            ps.executeUpdate();    
+            
+            if (triggers.get(1).getState().equals("enabled")){
+            	throw new DAOException("Error while update user. " + "Other doctor");
+            }
         } catch (SQLException e) {
         	System.out.println(e.getMessage());
             throw new DAOException("Error while update user. " + e.getMessage(), e);
@@ -317,17 +322,16 @@ public class ResourceDAOImpl implements ResourceDAO {
                     int price = rs.getInt("price");
                     String patientName = rs.getString("patient_name");
                     String doctorName = rs.getString("doctor_name");
-                    
-                    
+                    //String tooth_formula = rs.getString("patient.tooth_formula");
                     resource.setVisitDate(new java.util.Date(visitDate.getTime()));
                     
                     resource.setDescription(description);
                     resource.setPrice(price);
                     resource.setPatientName(patientName);
                     resource.setDoctorName(doctorName);
+                    //resource.setTooth_formula(tooth_formula);
                     
                     resources.add(resource);
-                    
                 }
             }
         } catch (SQLException e) {

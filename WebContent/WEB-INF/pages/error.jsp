@@ -34,8 +34,8 @@
     </div>
 </div>
 <div class="container body-content">
-    <h1>Error</h1>
-    <div>"${error}"</div>
+    <h1>${type}</h1>
+    <div>${error}</div>
     <hr/>
     <footer>
     </footer>

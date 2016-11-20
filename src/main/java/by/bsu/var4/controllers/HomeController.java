@@ -67,6 +67,9 @@ public class HomeController extends BaseController{
         } catch (DAOException e) {
             System.out.println("Error while update user. " + e.toString());
             model.addAttribute("error", e.toString());
+            model.addAttribute("type", "Error");
+            if (e.toString().equals("by.bsu.var4.exception.DAOException: Error while update user. Other doctor"))
+            	model.addAttribute("type", "Warning");
             return "error";
         }
         return manageRequests(req, resp, model);

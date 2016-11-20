@@ -11,6 +11,8 @@ public class Resource {
     private int resourceId;
     private Date visitDate;
     private String description;
+    private String tooth_formula;
+    
     private int price;
     private String patientName;
     private String doctorName;
@@ -18,7 +20,17 @@ public class Resource {
     private int doctorId;
     private int patientId;
     
-    public int getDoctorId() {
+    
+    
+    public String getTooth_formula() {
+		return tooth_formula;
+	}
+
+	public void setTooth_formula(String tooth_formula) {
+		this.tooth_formula = tooth_formula;
+	}
+
+	public int getDoctorId() {
 		return doctorId;
 	}
 
