@@ -65,6 +65,9 @@ public class ResourceDAOImpl implements ResourceDAO {
     private static final String SQL_UPDATE_RESOURCE = 
     		"Update Visit set VISIT_DATE=?, description=?, price=?, patient_id = ?, doctor_id=? WHERE ID=?";
     
+    private static final String SQL_INSERT_VISITS = 
+    		"Insert into visit (VISIT_DATE, description, price, patient_id, doctor_id, id) values (?, ?, ?, ?, ?, ?); ";
+    
     private static final String SQL_DOCTOR = 
     		"select id, name from doctor";
     private static final String SQL_PATIENT = 
@@ -76,6 +79,14 @@ public class ResourceDAOImpl implements ResourceDAO {
     private static final String ID = "ID";
     private static final String VISIT_DATE = "VISIT_DATE";
     private static final String DESCRIPTION = "DESCRIPTION";
+    
+    private static final HashMap<String, String> SQL_NEXT_ID;
+    static {
+    	SQL_NEXT_ID = new HashMap<String, String>();
+    	SQL_NEXT_ID.put("visit", "select max(id) as m from visit");
+    	SQL_NEXT_ID.put("patient", "select max(id) as m from patient");
+    	SQL_NEXT_ID.put("doctor", "select max(id) as m from doctor");    	
+    }
     
     
     private static final String SQL_TRIGGER_POS_SUM = "CREATE TRIGGER POS_SUM "
@@ -300,13 +311,49 @@ public class ResourceDAOImpl implements ResourceDAO {
         }
         */
     }
+    
+    @Override
+    public int getNextId(String tableName) throws DAOException{
+    	String sql_statement = SQL_NEXT_ID.get(tableName);
+    	System.out.println(sql_statement);
+    	try(Connection con = dataSource.getConnection();
+            	PreparedStatement ps = con.prepareStatement(sql_statement);) {
+                try(ResultSet rs = ps.executeQuery();){
+                	rs.next();
+            		int nextId = rs.getInt("m");
+            		return (nextId + 1);
+                }   	  
+	    } catch (SQLException e) {
+	        throw new DAOException("Error while getNextId from db.", e);
+	    }
+    }
+    
+    public void insertResource(Resource resource) throws DAOException{
+    	try(Connection con = dataSource.getConnection();
+            	PreparedStatement ps = con.prepareStatement(SQL_INSERT_VISITS);) {
+                	ps.setDate(1, new java.sql.Date(resource.getVisitDate().getTime()));
+                    ps.setString(2, resource.getDescription());
+                    ps.setInt(3, resource.getPrice());
+                    ps.setInt(4, resource.getPatientId());
+                    ps.setInt(5, resource.getDoctorId());
+                    ps.setInt(6, resource.getResourceId());
+
+                    ps.executeUpdate();    
+                    
+                    if (triggers.get(1).getState().equals("enabled")){
+                    	throw new DAOException("Error while insert visit. " + "Other doctor");
+                    }
+                } catch (SQLException e) {
+                	System.out.println(e.getMessage());
+                    throw new DAOException("Error while insert visit. " + e.getMessage(), e);
+                }
+    }
 
     @Override
     public List<Resource> getResources() throws DAOException {
         List<Resource> resources = new ArrayList<>();
-        Resource resource = null;
         
-        
+        Resource resource = null; 
         try(Connection con = dataSource.getConnection();
         	PreparedStatement ps = con.prepareStatement(SQL_SELECT_FROM_VISITS);) {
             try(ResultSet rs = ps.executeQuery();){
@@ -323,21 +370,23 @@ public class ResourceDAOImpl implements ResourceDAO {
                     String patientName = rs.getString("patient_name");
                     String doctorName = rs.getString("doctor_name");
                     //String tooth_formula = rs.getString("patient.tooth_formula");
-                    resource.setVisitDate(new java.util.Date(visitDate.getTime()));
-                    
                     resource.setDescription(description);
+                    resource.setVisitDate(new java.util.Date(visitDate.getTime()));
                     resource.setPrice(price);
                     resource.setPatientName(patientName);
                     resource.setDoctorName(doctorName);
                     //resource.setTooth_formula(tooth_formula);
                     
                     resources.add(resource);
+                    
                 }
             }
         } catch (SQLException e) {
             throw new DAOException("Error while getResources from db.", e);
         }
+        
         return resources;
+        
     }
     
     @Override

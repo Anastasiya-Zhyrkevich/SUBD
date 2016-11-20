@@ -45,6 +45,10 @@
     	Add new visit</a>        	
     </div>
     -->
+    <td>
+    <a class="btn btn-default" href="${pageContext.request.contextPath}/editResource?id=0" role="button">Add</a>
+    </td>
+    
     <c:if test="${resources != null}">
     	<table class="table table-striped table-hover">
 
@@ -55,7 +59,6 @@
         <th>Date</th>
         <th>Description</th>
         <th>Price</th>
-        <th> Formula </th>
         </thead>
         <!-- column data -->
         <tbody>
@@ -66,7 +69,6 @@
                 <td>${row.getStringVisitDate()}</td>
                 <td>${row.getDescription()}</td>
                 <td>${row.getPrice()}</td>
-                <td>${row.getTooth_formula()}</td>
                 <td>
                 	<a class="btn btn-default" href="${pageContext.request.contextPath}/editResource?id=${row.getResourceId()}" role="button">Edit</a>
             	</td>

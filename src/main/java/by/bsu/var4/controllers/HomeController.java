@@ -29,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 
 
+
 //import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,22 +56,44 @@ public class HomeController extends BaseController{
     
     @RequestMapping(value = "/editResource", method = RequestMethod.GET)
     public ModelAndView editResource(@RequestParam("id") Integer id, HttpServletRequest req, Model model) throws DAOException {
-        Resource resource = resourceDAO.retrieve(id);
+        if (id == 0){
+        	Map<Integer, String> doctors = resourceDAO.getDoctors();
+        	Map<Integer, String> patients = resourceDAO.getPatients();
+        	Resource resource = new Resource(0, doctors, patients);        	
+            return new ModelAndView("addResource", "resource", resource);
+        }
+    	Resource resource = resourceDAO.retrieve(id);
         return new ModelAndView("addResource", "resource", resource);
     }
-
+    
     @RequestMapping(value = "/editResource", method = RequestMethod.POST)
     public String editResourceToDb(@ModelAttribute("resource") Resource resource,
                                HttpServletRequest req, HttpServletResponse resp, Model model) throws IOException, SQLException, DAOException {
-        try{
-        	resourceDAO.update(resource);
-        } catch (DAOException e) {
-            System.out.println("Error while update user. " + e.toString());
-            model.addAttribute("error", e.toString());
-            model.addAttribute("type", "Error");
-            if (e.toString().equals("by.bsu.var4.exception.DAOException: Error while update user. Other doctor"))
-            	model.addAttribute("type", "Warning");
-            return "error";
+        if (resource.getResourceId()== 0){
+        	resource.setResourceId(resourceDAO.getNextId("visit"));
+        	try{
+        		resourceDAO.insertResource(resource);
+            } catch (DAOException e) {
+                System.out.println("Error while update user. " + e.toString());
+                model.addAttribute("error", e.toString());
+                model.addAttribute("type", "Error");
+                if (e.toString().equals("by.bsu.var4.exception.DAOException: Error while update user. Other doctor"))
+                	model.addAttribute("type", "Warning");
+                return "error";
+            }
+        }
+        else
+        {
+	    	try{
+	        	resourceDAO.update(resource);
+	        } catch (DAOException e) {
+	            System.out.println("Error while update user. " + e.toString());
+	            model.addAttribute("error", e.toString());
+	            model.addAttribute("type", "Error");
+	            if (e.toString().equals("by.bsu.var4.exception.DAOException: Error while update user. Other doctor"))
+	            	model.addAttribute("type", "Warning");
+	            return "error";
+	        }
         }
         return manageRequests(req, resp, model);
     }

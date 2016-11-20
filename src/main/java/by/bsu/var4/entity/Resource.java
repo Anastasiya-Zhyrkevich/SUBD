@@ -20,9 +20,23 @@ public class Resource {
     private int doctorId;
     private int patientId;
     
+    public Resource(int resourceId, Map<Integer, String> doctors, 
+    		Map<Integer, String> patients) {
+		super();
+		this.resourceId = resourceId;
+		this.visitDate = new Date(0);
+		this.description = "--------------------------------";
+		//this.tooth_formula = "--SSSSSSSSSSSSSSSSSSSSSSSSSSSS--";
+		this.price = 0;
+		this.doctorId = 1;
+		this.patientId = 1;
+		this.doctors = doctors;
+		this.patients = patients;
+	}
     
     
-    public String getTooth_formula() {
+
+	public String getTooth_formula() {
 		return tooth_formula;
 	}
 
@@ -130,11 +144,7 @@ public class Resource {
 		this.price = price;
 	}
 
-
-
-	public Resource(int resourceId) {
-        this.resourceId = resourceId;
-    }
+	
 
     public int getResourceId() {
         return resourceId;
