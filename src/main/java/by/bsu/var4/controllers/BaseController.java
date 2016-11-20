@@ -25,6 +25,8 @@ public class BaseController {
     @Autowired
     protected ResourceDAO resourceDAO;
 
+    @Autowired
+    protected ResourceDAO patientDAO;
    
     public String manageRequests(HttpServletRequest req, HttpServletResponse resp, Model model) throws IOException, DAOException {
         model.addAttribute("resources", resourceDAO.getResources());

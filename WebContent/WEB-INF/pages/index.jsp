@@ -28,6 +28,7 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li> <a href="${pageContext.request.contextPath}/" title="index">Visits</a></li>
+                <li> <a href="${pageContext.request.contextPath}/Patient" title="patients">Patients</a></li>
                 <li> <a href="${pageContext.request.contextPath}/Req" title="Req">Requests</a></li>
                 <li> <a href="${pageContext.request.contextPath}/trigger" title="trigger">Triggers</a></li>
                 

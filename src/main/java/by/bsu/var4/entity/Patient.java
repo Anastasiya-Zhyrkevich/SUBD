@@ -1,6 +1,7 @@
 package by.bsu.var4.entity;
 
 import java.util.Date;
+import java.util.Map;
 
 public class Patient {
 	private int patientId;
@@ -8,7 +9,45 @@ public class Patient {
 	private String address;
 	private Date birthdate;
 	
+	private String toothFormula;
+	private String paymentType;
+	private int doctorId;
+	private String doctorName;
 	
+	private Map<Integer, String> doctors;
+	
+		
+	public Map<Integer, String> getDoctors() {
+		return doctors;
+	}
+	public void setDoctors(Map<Integer, String> doctors) {
+		this.doctors = doctors;
+	}
+	
+	public String getToothFormula() {
+		return toothFormula;
+	}
+	public void setToothFormula(String toothFormula) {
+		this.toothFormula = toothFormula;
+	}
+	public String getPaymentType() {
+		return paymentType;
+	}
+	public void setPaymentType(String paymentType) {
+		this.paymentType = paymentType;
+	}
+	public int getDoctorId() {
+		return doctorId;
+	}
+	public void setDoctorId(int doctorId) {
+		this.doctorId = doctorId;
+	}
+	public String getDoctorName() {
+		return doctorName;
+	}
+	public void setDoctorName(String doctorName) {
+		this.doctorName = doctorName;
+	}
 	public String getAddress() {
 		return address;
 	}

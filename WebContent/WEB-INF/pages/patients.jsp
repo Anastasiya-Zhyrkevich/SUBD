@@ -28,6 +28,7 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li> <a href="${pageContext.request.contextPath}/" title="index">Visits</a></li>
+                <li> <a href="${pageContext.request.contextPath}/Patient" title="patients">Patients</a></li>
                 <li> <a href="${pageContext.request.contextPath}/Req" title="Req">Requests</a></li>
                 <li> <a href="${pageContext.request.contextPath}/trigger" title="trigger">Triggers</a></li>
                 
@@ -37,7 +38,7 @@
 </div>
 <div class="container body-content">
     <div class="jumbotron">
-        <h1>Doctor Visits</h1>
+        <h1>Patients</h1>
     </div>
     <!--  <div>
     
@@ -46,7 +47,7 @@
     </div>
     -->
     <td>
-    <a class="btn btn-default" href="${pageContext.request.contextPath}/editResource?id=0" role="button">Add</a>
+    <a class="btn btn-default" href="${pageContext.request.contextPath}/editPatient?id=0" role="button">Add</a>
     </td>
     
     <c:if test="${resources != null}">
@@ -57,6 +58,10 @@
         <th>Patient</th>
         <th>Address</th>
         <th>Birthdate</th>
+        <th>Tooth Formula</th>
+        <th>Payment Type</th>
+        <th>Doctor Name</th>        
+        
         </thead>
         <!-- column data -->
         <tbody>
@@ -65,8 +70,12 @@
                 <td>${row.getPatientName()}</td>
                 <td>${row.getAddress()}</td>
                 <td>${row.getBirthdate()}</td>
+                <td>${row.getBirthdate()}</td>
                 <td>
-                	<a class="btn btn-default" href="${pageContext.request.contextPath}/editResource?id=${row.getResourceId()}" role="button">Edit</a>
+                	<a class="btn btn-default" href="${pageContext.request.contextPath}/editPatient?id=${row.getPatientId()}" role="button">Edit</a>
+            	</td>
+            	<td>
+                	<a class="btn btn-default" href="${pageContext.request.contextPath}/deletePatient?id=${row.getPatientId()}" role="button">Delete</a>
             	</td>
             </tr>
         </c:forEach>

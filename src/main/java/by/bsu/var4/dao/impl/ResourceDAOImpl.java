@@ -86,9 +86,9 @@ public class ResourceDAOImpl implements ResourceDAO {
     private static final HashMap<String, String> SQL_NEXT_ID;
     static {
     	SQL_NEXT_ID = new HashMap<String, String>();
-    	SQL_NEXT_ID.put("visit", "select max(id) as m from visit");
-    	SQL_NEXT_ID.put("patient", "select max(id) as m from patient");
-    	SQL_NEXT_ID.put("doctor", "select max(id) as m from doctor");    	
+    	SQL_NEXT_ID.put("visit", "select max(id) as m from visit;");
+    	SQL_NEXT_ID.put("patient", "select max(id) as m from patient;");
+    	SQL_NEXT_ID.put("doctor", "select max(id) as m from doctor;");    	
     }
     
     
@@ -324,7 +324,6 @@ public class ResourceDAOImpl implements ResourceDAO {
                 throw new DAOException("Error while delete user.", e);
             }
     }
-    
     
     @Override
     public int getNextId(String tableName) throws DAOException{
