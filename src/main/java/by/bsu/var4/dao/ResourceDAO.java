@@ -22,4 +22,5 @@ public interface ResourceDAO extends BaseDAO<Integer, Resource> {
     public void setTriggerStates(Triggers triggers);
     public int getNextId(String tableName) throws DAOException;
     public void insertResource(Resource resource) throws DAOException;
+    public void deleteResource(Integer id) throws DAOException;
 }

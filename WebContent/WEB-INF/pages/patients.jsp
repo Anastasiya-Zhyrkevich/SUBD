@@ -55,25 +55,18 @@
         <!-- column headers -->
         <thead>
         <th>Patient</th>
-        <th>Doctor</th>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Price</th>
+        <th>Address</th>
+        <th>Birthdate</th>
         </thead>
         <!-- column data -->
         <tbody>
         <c:forEach var="row" items="${resources}">
             <tr>
                 <td>${row.getPatientName()}</td>
-                <td>${row.getDoctorName()}</td>
-                <td>${row.getStringVisitDate()}</td>
-                <td>${row.getDescription()}</td>
-                <td>${row.getPrice()}</td>
+                <td>${row.getAddress()}</td>
+                <td>${row.getBirthdate()}</td>
                 <td>
                 	<a class="btn btn-default" href="${pageContext.request.contextPath}/editResource?id=${row.getResourceId()}" role="button">Edit</a>
-            	</td>
-            	<td>
-                	<a class="btn btn-default" href="${pageContext.request.contextPath}/deleteResource?id=${row.getResourceId()}" role="button">Delete</a>
             	</td>
             </tr>
         </c:forEach>
@@ -81,7 +74,7 @@
     </table>
     </c:if>
     <c:if test="${resources == null}">
-    	<div> No visits </div>
+    	<div> No patients </div>
     </c:if>
 
     <hr />

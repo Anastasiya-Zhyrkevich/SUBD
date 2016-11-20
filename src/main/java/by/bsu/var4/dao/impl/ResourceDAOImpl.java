@@ -68,6 +68,9 @@ public class ResourceDAOImpl implements ResourceDAO {
     private static final String SQL_INSERT_VISITS = 
     		"Insert into visit (VISIT_DATE, description, price, patient_id, doctor_id, id) values (?, ?, ?, ?, ?, ?); ";
     
+    private static final String SQL_DELETE_RESOURCE = 
+    		"Delete from visit where id = ?;";
+    
     private static final String SQL_DOCTOR = 
     		"select id, name from doctor";
     private static final String SQL_PATIENT = 
@@ -311,6 +314,17 @@ public class ResourceDAOImpl implements ResourceDAO {
         }
         */
     }
+    @Override
+    public void deleteResource(Integer resourceId) throws DAOException{
+    	try(Connection con = dataSource.getConnection();
+                PreparedStatement ps = con.prepareStatement(SQL_DELETE_RESOURCE);) {
+                ps.setInt(1, (int)resourceId);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                throw new DAOException("Error while delete user.", e);
+            }
+    }
+    
     
     @Override
     public int getNextId(String tableName) throws DAOException{

@@ -54,6 +54,13 @@ public class HomeController extends BaseController{
         return manageRequests(req,resp,model);
     }
     
+    @RequestMapping(value = "/deleteResource", method = RequestMethod.GET)
+    public String editResourceToDb(@RequestParam("id") Integer id,
+                               HttpServletRequest req, HttpServletResponse resp, Model model) throws IOException, SQLException, DAOException {
+        resourceDAO.deleteResource(id);
+        return manageRequests(req, resp, model);
+    }
+    
     @RequestMapping(value = "/editResource", method = RequestMethod.GET)
     public ModelAndView editResource(@RequestParam("id") Integer id, HttpServletRequest req, Model model) throws DAOException {
         if (id == 0){
