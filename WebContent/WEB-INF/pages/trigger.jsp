@@ -26,7 +26,12 @@
         <div class="navbar-collapse collapse navbar-responsive-collapse">
 
             <ul class="nav navbar-nav navbar-right">
-                <li> <a href="${pageContext.request.contextPath}/" title="Home">Back</a></li>
+                
+                <li> <a href="${pageContext.request.contextPath}/" title="index">Visits</a></li>
+                <li> <a href="${pageContext.request.contextPath}/Req" title="Req">Requests</a></li>
+                <li> <a href="${pageContext.request.contextPath}/trigger" title="trigger">Triggers</a></li>
+                
+            </ul>
                 
             </ul>
         </div>

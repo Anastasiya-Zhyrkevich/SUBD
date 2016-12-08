@@ -62,7 +62,13 @@ public class HomeController extends BaseController{
     @RequestMapping(value = "/editResource", method = RequestMethod.POST)
     public String editResourceToDb(@ModelAttribute("resource") Resource resource,
                                HttpServletRequest req, HttpServletResponse resp, Model model) throws IOException, SQLException, DAOException {
-        resourceDAO.update(resource);
+        try{
+        	resourceDAO.update(resource);
+        } catch (DAOException e) {
+            System.out.println("Error while update user. " + e.toString());
+            model.addAttribute("error", e.toString());
+            return "error";
+        }
         return manageRequests(req, resp, model);
     }
     
@@ -75,8 +81,6 @@ public class HomeController extends BaseController{
     public String reqPost(@ModelAttribute("question") Question question,
                                HttpServletRequest req, HttpServletResponse resp, Model model) throws IOException, SQLException, DAOException {
 	
-		//DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-    	//Date date = formatter.parse(question.getDate());
 		List<Patient> task1 = resourceDAO.getReq1(question.getDate());
 		model.addAttribute("answer1", task1);
 	

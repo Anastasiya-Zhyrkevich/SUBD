@@ -20,4 +20,5 @@ public class DAOException extends Exception{
     protected DAOException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
+    
 }

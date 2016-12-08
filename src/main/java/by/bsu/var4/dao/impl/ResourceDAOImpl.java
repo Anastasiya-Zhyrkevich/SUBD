@@ -78,31 +78,25 @@ public class ResourceDAOImpl implements ResourceDAO {
     private static final String DESCRIPTION = "DESCRIPTION";
     
     
-    private static final String SQL_TRIGGER_POS_SUM = "drop trigger if exists pos_sum; delimiter //" 
-			+ "CREATE TRIGGER POS_SUM "
-			+ "BEFORE UPDATE ON VISIT "  
+    private static final String SQL_TRIGGER_POS_SUM = "CREATE TRIGGER POS_SUM "
+			+ " BEFORE UPDATE ON VISIT "  
 			+ " FOR EACH ROW " 
-			+ "BEGIN "
-			+ "if NEW.PRICE < 0 "
-			+ " THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Negative-sum'; END IF; END; //"
-			+ "delimiter ; ";
-	private static final String SQL_TRIGGER_DOCTOR = "set @default_doctor_id = null;"
-			+ " drop trigger if exists doctor_patient_relation; "
-			+ " delimiter // "
-			+ " CREATE TRIGGER doctor_patient_relation "
+			+ " BEGIN "
+			+ " if NEW.PRICE < 0 "
+			+ " THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Negative-sum'; END IF; END; ";
+
+	private static final String SQL_TRIGGER_DOCTOR = " CREATE TRIGGER doctor_patient_relation "
 			+ " AFTER UPDATE ON VISIT "
 			+ " for each row"
 			+ " begin"
-			+ " select doctor_id into @default_doctor_id from patient where patient.id = new.patient_id;"
-			+ " IF ((new.doctor_id is not null) and (not @default_doctor_id = new.doctor_id))"
-			+ "  THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'OtherDoctor'; "
+			+ " declare default_doctor_id int;"
+			+ " select doctor_id into default_doctor_id from patient where patient.id = new.patient_id;"
+			+ " IF ((new.doctor_id is not null) and (not default_doctor_id = new.doctor_id))"
+			+ "  THEN SIGNAL SQLSTATE '01234' SET MESSAGE_TEXT = 'OtherDoctor'; "
 			+ " end if;"
-			+ " END; //"
-			+ " delimiter ;";
+			+ " END; ";
 	
-	private static final String SQL_TRIGGER_DESC = "set @tooth_formula = null;"
-			+ " drop trigger if exists correct_decription; "
-			+ " CREATE TRIGGER correct_decription"
+	private static final String SQL_TRIGGER_DESC = " CREATE TRIGGER correct_decription"
 			+ " before UPDATE ON VISIT "
 			+ " for each row "
 			+ " begin  "
@@ -117,13 +111,12 @@ public class ResourceDAOImpl implements ResourceDAO {
 			+ " if SUBSTRing(@tooth_formula, j, 1) = 'P' and (SUBSTRing(new.description, j, 1) = 'C') "
 			+ " THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Operation under non-existing tooth'; "
 			+ " end if; "
-			+ " if (not SUBSTRing(@tooth_formula, j, 1) = '-') and (SUBSTRing(:ew.description, j, 1) = 'P') "
+			+ " if (not SUBSTRing(@tooth_formula, j, 1) = '-') and (SUBSTRing(new.description, j, 1) = 'P') "
 			+ " THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Operation under non-existing tooth'; "
 			+ " end if;"
 			+ " set j=j+1; "
 			+ " end while ;"
-			+ " END; // ";
-
+			+ " END; ";
 
     @Autowired
     private DataSource dataSource;
@@ -142,45 +135,31 @@ public class ResourceDAOImpl implements ResourceDAO {
     	return desc;
     }
     
-    private void alterTrigger(Trigger trigger) throws DAOException{
-    	System.out.println("alter Trigger");
+    private void clearTrigger(Trigger trigger) throws DAOException{
+    	System.out.println("clear Trigger");
     	System.out.println(trigger.getName() + " " + trigger.getState());
-    	if (trigger.getState().equals("disabled")){
-    		try(Connection con = dataSource.getConnection();
+      		try(Connection con = dataSource.getConnection();
     	    		PreparedStatement ps = con.prepareStatement(DROP_TRIGGER + trigger.getName() + ";");) {
     	                System.out.println(ps.toString());
     	                ps.executeUpdate();
     		        } catch (SQLException e) {
-    		        	System.out.println("disabled");
-    		        	System.out.println(e.toString());
     		            throw new DAOException("Error while drop trigger from db.", e);
     		        }
+    }
+    
+    
+    private void alterTrigger(Trigger trigger) throws DAOException{
+    	if (trigger.getState().equals("disabled")){
     		return;
     	}
     	try(Connection con = dataSource.getConnection();
-        		PreparedStatement ps = con.prepareStatement("delimiter //");) {
-        			System.out.println(ps.toString());
-                    ps.executeUpdate();
-    	        } catch (SQLException e) {
-    	        	System.out.println(e.toString());
-    	            throw new DAOException("Error while insert trigger delimiter // from db.", e);
-    	        }
-    	try(Connection con = dataSource.getConnection();
     		PreparedStatement ps = con.prepareStatement(trigger.getDesc());) {
     			System.out.println(ps.toString());
-                ps.executeUpdate();
+                ps.execute();
 	        } catch (SQLException e) {
 	        	System.out.println(e.toString());
 	            throw new DAOException("Error while insert trigger from db.", e);
 	        }
-    	try(Connection con = dataSource.getConnection();
-        		PreparedStatement ps = con.prepareStatement("delimiter ;");) {
-        			System.out.println(ps.toString());
-                    ps.executeUpdate();
-    	        } catch (SQLException e) {
-    	        	System.out.println(e.toString());
-    	            throw new DAOException("Error while insert trigger delimiter ; from db.", e);
-    	        }
     }
     
     @Override
@@ -191,11 +170,19 @@ public class ResourceDAOImpl implements ResourceDAO {
     	for (int i = 0; i< states.size(); i++){
 	    	try{
 	    		triggers.get(i).setState(states.get(i));
+	    		clearTrigger(triggers.get(i));
+		    } catch (DAOException e) {
+		        System.out.println("Error while alter trigger user from db." + e.toString());
+		    }
+    	}    
+    	for (int i = 0; i< states.size(); i++){
+	    	try{
+	    		triggers.get(i).setState(states.get(i));
 	    		alterTrigger(triggers.get(i));
 		    } catch (DAOException e) {
 		        System.out.println("Error while alter trigger user from db." + e.toString());
 		    }
-    	}    	
+    	}    
     }
     
     
@@ -285,9 +272,10 @@ public class ResourceDAOImpl implements ResourceDAO {
             ps.setInt(4, resource.getPatientId());
             ps.setInt(5, resource.getDoctorId());
             ps.setInt(6, resource.getResourceId());
-            ps.executeUpdate();
+            ps.executeUpdate();            
         } catch (SQLException e) {
-            throw new DAOException("Error while update user.", e);
+        	System.out.println(e.getMessage());
+            throw new DAOException("Error while update user. " + e.getMessage(), e);
         }
         
     }

@@ -31,20 +31,12 @@
         <div class="navbar-collapse collapse navbar-responsive-collapse">
 
             <ul class="nav navbar-nav navbar-right">
-                <li> <a href="${pageContext.request.contextPath}/" title="Home">Back</a></li>
-                <c:if test="${currentuser == null}">
-                    <li><a href="${pageContext.request.contextPath}/login" title ="LogIn" id="LoginPopup">Login</a></li>
-                    <li><a href="${pageContext.request.contextPath}/registration" title="Registration">Register</a></li>
-                </c:if>
-                <c:if test="${currentuser != null && !isAdmin}">
-                    <li><a href="${pageContext.request.contextPath}/" title ="User" >${currentuser}</a></li>
-                </c:if>
-                <c:if test="${currentuser != null && isAdmin}">
-                    <li><a href="${pageContext.request.contextPath}/admin" title ="User" >${currentuser}</a></li>
-                </c:if>
-                <c:if test="${currentuser != null}">
-                    <li><a href="${pageContext.request.contextPath}/logout" title ="User" >Logout</a></li>
-                </c:if>
+                
+                <li> <a href="${pageContext.request.contextPath}/" title="index">Visits</a></li>
+                <li> <a href="${pageContext.request.contextPath}/Req" title="Req">Requests</a></li>
+                <li> <a href="${pageContext.request.contextPath}/trigger" title="trigger">Triggers</a></li>
+                
+            </ul>
             </ul>
         </div>
     </div>
