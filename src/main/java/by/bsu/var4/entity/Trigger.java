@@ -4,6 +4,7 @@ public class Trigger {
 	private boolean en;
 	private String name;
 	private String state;
+	private String desc;
 	
 	public boolean isEn() {
 		return en;
@@ -18,11 +19,12 @@ public class Trigger {
 		this.name = name;
 	}
 	
-	public Trigger(String name) {
+	public Trigger(String name, String desc) {
 		super();
 		this.en = false;
 		this.state = "disabled";
 		this.name = name;
+		this.desc = desc;
 	}
 	public String getState() {
 		return state;
@@ -30,6 +32,13 @@ public class Trigger {
 	public void setState(String state) {
 		this.state = state;
 	}
+	public String getDesc() {
+		return desc;
+	}
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+	
 	
 	
 	

@@ -70,55 +70,130 @@ public class ResourceDAOImpl implements ResourceDAO {
     private static final String SQL_PATIENT = 
     		"select id, name from patient";
     
-    private static final String ALTER_TRIGGER = 
-    		"ALTER TRIGGER ? ? ";
-    
+    private static final String DROP_TRIGGER  = "drop TRIGGER if exists ";
     
     private static final String RESOURCE_ID = "RESOURCES_ID";
     private static final String ID = "ID";
     private static final String VISIT_DATE = "VISIT_DATE";
     private static final String DESCRIPTION = "DESCRIPTION";
     
+    
+    private static final String SQL_TRIGGER_POS_SUM = "drop trigger if exists pos_sum; delimiter //" 
+			+ "CREATE TRIGGER POS_SUM "
+			+ "BEFORE UPDATE ON VISIT "  
+			+ " FOR EACH ROW " 
+			+ "BEGIN "
+			+ "if NEW.PRICE < 0 "
+			+ " THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Negative-sum'; END IF; END; //"
+			+ "delimiter ; ";
+	private static final String SQL_TRIGGER_DOCTOR = "set @default_doctor_id = null;"
+			+ " drop trigger if exists doctor_patient_relation; "
+			+ " delimiter // "
+			+ " CREATE TRIGGER doctor_patient_relation "
+			+ " AFTER UPDATE ON VISIT "
+			+ " for each row"
+			+ " begin"
+			+ " select doctor_id into @default_doctor_id from patient where patient.id = new.patient_id;"
+			+ " IF ((new.doctor_id is not null) and (not @default_doctor_id = new.doctor_id))"
+			+ "  THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'OtherDoctor'; "
+			+ " end if;"
+			+ " END; //"
+			+ " delimiter ;";
+	
+	private static final String SQL_TRIGGER_DESC = "set @tooth_formula = null;"
+			+ " drop trigger if exists correct_decription; "
+			+ " CREATE TRIGGER correct_decription"
+			+ " before UPDATE ON VISIT "
+			+ " for each row "
+			+ " begin  "
+			+ " declare j int; "
+			+ " set j = 1; "
+			+ " select tooth_formula into @tooth_formula from patient where id = new.patient_id; "
+			+ " while j < 33 do "
+			+ "	if SUBSTRing(@tooth_formula, j, 1) = '-' and (SUBSTRing(new.description, j, 1) = 'D'  "
+			+ "	or SUBSTRing(new.description, j, 1) = 'C' or SUBSTRing(new.description, j, 1) = 'P') "
+			+ " THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Operation under non-existing tooth'; "
+			+ " end if;"
+			+ " if SUBSTRing(@tooth_formula, j, 1) = 'P' and (SUBSTRing(new.description, j, 1) = 'C') "
+			+ " THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Operation under non-existing tooth'; "
+			+ " end if; "
+			+ " if (not SUBSTRing(@tooth_formula, j, 1) = '-') and (SUBSTRing(:ew.description, j, 1) = 'P') "
+			+ " THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Operation under non-existing tooth'; "
+			+ " end if;"
+			+ " set j=j+1; "
+			+ " end while ;"
+			+ " END; // ";
+
 
     @Autowired
     private DataSource dataSource;
     
     private ArrayList<Trigger> triggers = new ArrayList<Trigger>(
-    	    Arrays.asList(new Trigger ("pos_sum"), new Trigger ("doctor_patient_relation"),
-    	    		new Trigger("correct_decription"))); 
+    	    Arrays.asList(new Trigger ("pos_sum", SQL_TRIGGER_POS_SUM), 
+	    		new Trigger ("doctor_patient_relation", SQL_TRIGGER_DOCTOR),
+    	    	new Trigger("correct_decription", SQL_TRIGGER_DESC))); 
+    
     @Override
     public Triggers getTriggerDescriptions(){
     	Triggers desc = new Triggers();
     	desc.setPos_sum(triggers.get(0).getState());
     	desc.setDoctor_patient_relation(triggers.get(1).getState());
-    	desc.setCorrect_description(triggers.get(1).getState());    	
+    	desc.setCorrect_decription(triggers.get(2).getState());    	
     	return desc;
     }
     
-    private void alterTrigger(String name, String state) throws DAOException{
+    private void alterTrigger(Trigger trigger) throws DAOException{
+    	System.out.println("alter Trigger");
+    	System.out.println(trigger.getName() + " " + trigger.getState());
+    	if (trigger.getState().equals("disabled")){
+    		try(Connection con = dataSource.getConnection();
+    	    		PreparedStatement ps = con.prepareStatement(DROP_TRIGGER + trigger.getName() + ";");) {
+    	                System.out.println(ps.toString());
+    	                ps.executeUpdate();
+    		        } catch (SQLException e) {
+    		        	System.out.println("disabled");
+    		        	System.out.println(e.toString());
+    		            throw new DAOException("Error while drop trigger from db.", e);
+    		        }
+    		return;
+    	}
     	try(Connection con = dataSource.getConnection();
-    		PreparedStatement ps = con.prepareStatement(ALTER_TRIGGER);) {
-                ps.setString(1, name);
-                String action = state.substring(0, state.length() - 2);
-                System.out.println("Action" + action);
-                ps.setString(2, action);
-                ResultSet rs = ps.executeQuery();
+        		PreparedStatement ps = con.prepareStatement("delimiter //");) {
+        			System.out.println(ps.toString());
+                    ps.executeUpdate();
+    	        } catch (SQLException e) {
+    	        	System.out.println(e.toString());
+    	            throw new DAOException("Error while insert trigger delimiter // from db.", e);
+    	        }
+    	try(Connection con = dataSource.getConnection();
+    		PreparedStatement ps = con.prepareStatement(trigger.getDesc());) {
+    			System.out.println(ps.toString());
+                ps.executeUpdate();
 	        } catch (SQLException e) {
-	            throw new DAOException("Error while alter trigger user from db.", e);
+	        	System.out.println(e.toString());
+	            throw new DAOException("Error while insert trigger from db.", e);
 	        }
+    	try(Connection con = dataSource.getConnection();
+        		PreparedStatement ps = con.prepareStatement("delimiter ;");) {
+        			System.out.println(ps.toString());
+                    ps.executeUpdate();
+    	        } catch (SQLException e) {
+    	        	System.out.println(e.toString());
+    	            throw new DAOException("Error while insert trigger delimiter ; from db.", e);
+    	        }
     }
     
     @Override
     public void setTriggerStates(Triggers desc){
     	ArrayList<String> states = new ArrayList<String>(
         	    Arrays.asList(desc.getPos_sum(), desc.getDoctor_patient_relation(), 
-        	    		desc.getCorrect_description()));
+        	    		desc.getCorrect_decription()));
     	for (int i = 0; i< states.size(); i++){
 	    	try{
 	    		triggers.get(i).setState(states.get(i));
-	    		alterTrigger(triggers.get(i).getName(), triggers.get(i).getState());
+	    		alterTrigger(triggers.get(i));
 		    } catch (DAOException e) {
-		        System.out.println("Error while alter trigger user from db.");
+		        System.out.println("Error while alter trigger user from db." + e.toString());
 		    }
     	}    	
     }

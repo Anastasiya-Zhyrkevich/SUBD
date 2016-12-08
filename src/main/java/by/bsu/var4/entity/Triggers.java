@@ -3,7 +3,8 @@ package by.bsu.var4.entity;
 public class Triggers {
 	private String pos_sum;
 	private String doctor_patient_relation;
-	private String correct_description;
+	private String correct_decription;
+	
 	public String getPos_sum() {
 		return pos_sum;
 	}
@@ -16,11 +17,11 @@ public class Triggers {
 	public void setDoctor_patient_relation(String doctor_patient_relation) {
 		this.doctor_patient_relation = doctor_patient_relation;
 	}
-	public String getCorrect_description() {
-		return correct_description;
+	public String getCorrect_decription() {
+		return correct_decription;
 	}
-	public void setCorrect_description(String correct_description) {
-		this.correct_description = correct_description;
+	public void setCorrect_decription(String correct_decription) {
+		this.correct_decription = correct_decription;
 	}
 	
 }

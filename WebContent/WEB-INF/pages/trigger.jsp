@@ -34,7 +34,7 @@
 </div>
 <div class="container body-content">
     <h1>Visit</h1>
-    <form:form action="/DataBase/trigger" ommandName="triggers" cssClass="form-horizontal">
+    <form:form action="/DataBase/trigger" commandName="triggers" cssClass="form-horizontal">
         <div class="control-group">
             <label class="control-label">Positive_sum:</label>
             <div class="controls">
