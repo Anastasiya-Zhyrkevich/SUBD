@@ -5,6 +5,8 @@ import by.bsu.var4.entity.Doctor;
 import by.bsu.var4.entity.Patient;
 import by.bsu.var4.entity.Purchase;
 import by.bsu.var4.entity.Resource;
+import by.bsu.var4.entity.Trigger;
+import by.bsu.var4.entity.Triggers;
 import by.bsu.var4.exception.DAOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import javax.sql.DataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +70,10 @@ public class ResourceDAOImpl implements ResourceDAO {
     private static final String SQL_PATIENT = 
     		"select id, name from patient";
     
+    private static final String ALTER_TRIGGER = 
+    		"ALTER TRIGGER ? ? ";
+    
+    
     private static final String RESOURCE_ID = "RESOURCES_ID";
     private static final String ID = "ID";
     private static final String VISIT_DATE = "VISIT_DATE";
@@ -75,7 +82,48 @@ public class ResourceDAOImpl implements ResourceDAO {
 
     @Autowired
     private DataSource dataSource;
-
+    
+    private ArrayList<Trigger> triggers = new ArrayList<Trigger>(
+    	    Arrays.asList(new Trigger ("pos_sum"), new Trigger ("doctor_patient_relation"),
+    	    		new Trigger("correct_decription"))); 
+    @Override
+    public Triggers getTriggerDescriptions(){
+    	Triggers desc = new Triggers();
+    	desc.setPos_sum(triggers.get(0).getState());
+    	desc.setDoctor_patient_relation(triggers.get(1).getState());
+    	desc.setCorrect_description(triggers.get(1).getState());    	
+    	return desc;
+    }
+    
+    private void alterTrigger(String name, String state) throws DAOException{
+    	try(Connection con = dataSource.getConnection();
+    		PreparedStatement ps = con.prepareStatement(ALTER_TRIGGER);) {
+                ps.setString(1, name);
+                String action = state.substring(0, state.length() - 2);
+                System.out.println("Action" + action);
+                ps.setString(2, action);
+                ResultSet rs = ps.executeQuery();
+	        } catch (SQLException e) {
+	            throw new DAOException("Error while alter trigger user from db.", e);
+	        }
+    }
+    
+    @Override
+    public void setTriggerStates(Triggers desc){
+    	ArrayList<String> states = new ArrayList<String>(
+        	    Arrays.asList(desc.getPos_sum(), desc.getDoctor_patient_relation(), 
+        	    		desc.getCorrect_description()));
+    	for (int i = 0; i< states.size(); i++){
+	    	try{
+	    		triggers.get(i).setState(states.get(i));
+	    		alterTrigger(triggers.get(i).getName(), triggers.get(i).getState());
+		    } catch (DAOException e) {
+		        System.out.println("Error while alter trigger user from db.");
+		    }
+    	}    	
+    }
+    
+    
     @Override
     public void create(Resource resource) throws DAOException {
         /*

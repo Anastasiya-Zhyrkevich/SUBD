@@ -4,6 +4,7 @@ import by.bsu.var4.entity.Patient;
 import by.bsu.var4.entity.Purchase;
 import by.bsu.var4.entity.Question;
 import by.bsu.var4.entity.Resource;
+import by.bsu.var4.entity.Triggers;
 import by.bsu.var4.exception.DAOException;
 
 import org.springframework.stereotype.Controller;
@@ -26,6 +27,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 
 
+
+
 //import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,6 +41,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Asus on 04.10.2016.
@@ -89,6 +93,17 @@ public class HomeController extends BaseController{
         return "request";
     }
     
-    
+    @RequestMapping(value = "/trigger", method = RequestMethod.GET)
+    public String triggerGet(HttpServletRequest req, Model model) throws DAOException {
+    	Triggers triggers = resourceDAO.getTriggerDescriptions();
+    	model.addAttribute("triggers", triggers);
+        return "trigger";
+    }
+
+    @RequestMapping(value = "/trigger", method = RequestMethod.POST)
+    public String triggerPost(@ModelAttribute("triggers") Triggers triggers, HttpServletRequest req, Model model) throws DAOException {
+    	resourceDAO.setTriggerStates(triggers);
+        return "trigger";
+    }
     
 }

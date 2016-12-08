@@ -4,6 +4,7 @@ import by.bsu.var4.entity.Doctor;
 import by.bsu.var4.entity.Patient;
 import by.bsu.var4.entity.Purchase;
 import by.bsu.var4.entity.Resource;
+import by.bsu.var4.entity.Triggers;
 import by.bsu.var4.exception.DAOException;
 
 import java.util.Date;
@@ -17,4 +18,6 @@ public interface ResourceDAO extends BaseDAO<Integer, Resource> {
     List<Patient> getReq1(String date) throws DAOException;
     List<Patient> getReq2() throws DAOException;
     List<Purchase> getReq3(int year) throws DAOException;
+    public Triggers getTriggerDescriptions();
+    public void setTriggerStates(Triggers triggers);
 }
